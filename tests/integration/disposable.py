@@ -113,12 +113,17 @@ lookup=call(R,'/api/v3/movie/lookup/tmdb?tmdbId=27205',token=rad_key)
 if isinstance(lookup,list):lookup=lookup[0]
 lookup.update(qualityProfileId=profiles[0]['id'],rootFolderPath='/movies',path='/movies/Inception (2010)',monitored=True,addOptions={'searchForMovie':False})
 movie=call(R,'/api/v3/movie',lookup,token=rad_key); mid=movie['id']
-call(R,'/api/v3/command',{'name':'RescanMovie','movieId':mid},token=rad_key)
+# Adding the movie already triggers a scan; do not race a duplicate rescan.
 for _ in range(60):
     movie=call(R,f'/api/v3/movie/{mid}',token=rad_key)
     if movie.get('hasFile'):break
     time.sleep(2)
 assert movie.get('hasFile'), 'Synthetic file was not imported'
+for _ in range(60):
+    commands=call(R,'/api/v3/command',token=rad_key)
+    if not any(c['status'] in ('queued','started') for c in commands):break
+    time.sleep(2)
+movie=call(R,f'/api/v3/movie/{mid}',token=rad_key)
 fid=movie['movieFile']['id']
 # Seed only synthetic provenance in the DISPOSABLE database. No real download,
 # credentials, NZB, indexer, or downloader is configured in this Radarr instance.
