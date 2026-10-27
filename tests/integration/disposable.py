@@ -124,9 +124,9 @@ columns=[r[1] for r in db.execute('pragma table_info(History)')]
 print('HISTORY_SCHEMA',columns,flush=True)
 release='Inception.2010.1080p.SYNTHETIC-LibraryReviewTest'
 db.execute('update MovieFiles set SceneName=? where Id=?',(release,fid))
-quality=json.dumps(movie['movieFile']['quality'])
-for event,data in [(1,{'indexer':'SyntheticTest','protocol':'1','indexerId':'0'}),(3,{'fileId':str(fid),'importedPath':movie['movieFile']['path']})]:
-    values={'MovieId':mid,'SourceTitle':release,'Date':'2026-10-27T00:00:00Z','Quality':quality,'Languages':'[{"id":1,"name":"English"}]','EventType':event,'Data':json.dumps(data),'DownloadId':'synthetic-fixture-download'}
+quality,languages=db.execute('select Quality,Languages from MovieFiles where Id=?',(fid,)).fetchone()
+for event,data in [(1,{'Indexer':'SyntheticTest','Protocol':'1','IndexerId':'0','Size':str(video.stat().st_size),'PublishedDate':'2026-10-27T00:00:00Z','DownloadClient':'Sabnzbd','Guid':'synthetic-fixture-release'}),(3,{'FileId':str(fid),'ImportedPath':movie['movieFile']['path']})]:
+    values={'MovieId':mid,'SourceTitle':release,'Date':'2026-10-27T00:00:00Z','Quality':quality,'Languages':languages,'EventType':event,'Data':json.dumps(data),'DownloadId':'synthetic-fixture-download'}
     values={k:v for k,v in values.items() if k in columns}
     db.execute('insert into History ('+','.join(values)+') values ('+','.join('?' for _ in values)+')',list(values.values()))
 db.commit();db.close();cmd('docker','start','lr-test-radarr');time.sleep(5)
