@@ -31,6 +31,9 @@ public sealed class RadarrClient : IDisposable
     {
         if (item.TmdbId is null) throw new InvalidOperationException("TMDB identity is missing.");
         ExactFile.UnderRoot(config.JellyfinMovieRoot, item.File.Path);
+        var mediaExtensions = new[] { ".mkv", ".mp4", ".m4v", ".avi", ".ts", ".mov", ".wmv" };
+        if (Directory.EnumerateFiles(Path.GetDirectoryName(item.File.Path)!).Count(p => mediaExtensions.Contains(Path.GetExtension(p).ToLowerInvariant())) != 1)
+            throw new InvalidOperationException("Multiple videos share this movie folder. Automatic replacement is refused to protect other editions; handle this movie manually.");
         var relative = Path.GetRelativePath(Path.GetFullPath(config.JellyfinMovieRoot), item.File.Path).Replace('\\', '/');
         var mapped = config.RadarrMovieRoot.TrimEnd('/', '\\') + "/" + relative;
         var all = (await Get("movie", ct)).AsArray();
@@ -75,6 +78,13 @@ public sealed class RadarrClient : IDisposable
             }
         }
         throw new InvalidOperationException("File removed, but Radarr refresh is pending. Check Radarr before retrying any action.");
+    }
+    public async Task VerifyBlocklisted(RadarrMatch match, CancellationToken ct)
+    {
+        // Radarr can return HTTP success even if its event handler failed.
+        var records = (await Get($"blocklist/movie?movieId={match.MovieId}", ct)).AsArray();
+        if (!records.Any(r => (int?)r?["movieId"] == match.MovieId && (string?)r?["sourceTitle"] == match.Release))
+            throw new InvalidOperationException("Radarr did not confirm the release in its blocklist. The media file will be restored.");
     }
     public void Dispose() => _http.Dispose();
 }

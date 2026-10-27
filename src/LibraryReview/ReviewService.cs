@@ -134,6 +134,7 @@ public sealed class ReviewService(ILibraryManager library)
                 // Do not remove media if blocklisting fails. Never use Radarr's delete
                 // endpoint: it may remove associated sidecar files as well.
                 await radarr.Post($"history/failed/{pending.Match.HistoryId}", new { }, ct);
+                await radarr.VerifyBlocklisted(pending.Match, ct);
                 state.Actions.Add(new(DateTimeOffset.UtcNow, id, "blocked", pending.Match.Release)); Save(state);
                 await ExactFile.DeleteStaged(staged, pending.Preview.Sha256, ct);
             }

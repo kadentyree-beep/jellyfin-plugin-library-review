@@ -74,6 +74,22 @@ public sealed class RadarrTests : IDisposable
         _responses["queue?pageSize=1000"]["records"]!.AsArray().Add(JsonNode.Parse("""{"movieId":1}"""));using var c=Client();
         await Assert.ThrowsAsync<InvalidOperationException>(()=>c.Match(_item,_config,default));
     }
+    [Fact] public async Task OtherEditionRefusesReplacement()
+    {
+        File.WriteAllText(Path.Combine(_root,"other.mp4"),"keep");using var c=Client();
+        await Assert.ThrowsAsync<InvalidOperationException>(()=>c.Match(_item,_config,default));
+        Assert.Empty(_calls);
+    }
+    [Fact] public async Task MissingBlocklistConfirmationRefused()
+    {
+        _responses["blocklist/movie?movieId=1"]=JsonNode.Parse("[]")!;using var c=Client();
+        await Assert.ThrowsAsync<InvalidOperationException>(()=>c.VerifyBlocklisted(new(1,2,4,"/movies/movie.mkv",4,"Example.Release"),default));
+    }
+    [Fact] public async Task ExactReleaseBlocklistVerified()
+    {
+        _responses["blocklist/movie?movieId=1"]=JsonNode.Parse("""[{"movieId":1,"sourceTitle":"Example.Release"}]""")!;using var c=Client();
+        await c.VerifyBlocklisted(new(1,2,4,"/movies/movie.mkv",4,"Example.Release"),default);
+    }
     [Fact] public void UrlCredentialsRefused()
     {
         _config.RadarrUrl="https://user:password@radarr.test";

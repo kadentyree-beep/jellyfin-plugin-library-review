@@ -126,6 +126,7 @@ release='Inception.2010.1080p.SYNTHETIC-LibraryReviewTest'
 db.execute('update MovieFiles set SceneName=? where Id=?',(release,fid))
 quality,languages=db.execute('select Quality,Languages from MovieFiles where Id=?',(fid,)).fetchone()
 for event,data in [(1,{'Indexer':'SyntheticTest','Protocol':'1','IndexerId':'0','Size':str(video.stat().st_size),'PublishedDate':'2026-10-27T00:00:00Z','DownloadClient':'Sabnzbd','Guid':'synthetic-fixture-release'}),(3,{'FileId':str(fid),'ImportedPath':movie['movieFile']['path']})]:
+    data={k[0].lower()+k[1:]:v for k,v in data.items()}
     values={'MovieId':mid,'SourceTitle':release,'Date':'2026-10-27T00:00:00Z','Quality':quality,'Languages':languages,'EventType':event,'Data':json.dumps(data),'DownloadId':'synthetic-fixture-download'}
     values={k:v for k,v in values.items() if k in columns}
     db.execute('insert into History ('+','.join(values)+') values ('+','.join('?' for _ in values)+')',list(values.values()))
@@ -152,6 +153,14 @@ call(J,f'/LibraryReview/{iid}/Decision',{'status':'problem'},token=token)
 call(J,f'/LibraryReview/{iid}/Preview',{},token=token,expect=409)
 checked('Replacement disabled by default')
 config['EnableReplacement']=True;call(J,'/Plugins/'+PLUGIN+'/Configuration',config,token=token)
+call(J,f'/LibraryReview/{iid}/Preview',{},token=token,expect=409)
+assert sha(video)==original_hash and all(sha(movie_dir/n)==h for n,h in neighbors.items())
+checked('Multiple editions in one movie folder refuse replacement without changes')
+# Move the disposable second edition to a separate sibling movie folder so the
+# remaining test covers the supported single-video folder replacement flow.
+sibling=ROOT/'media/Protected second edition';sibling.mkdir()
+second.rename(sibling/second.name);second=sibling/second.name
+neighbors.pop(second.name)
 preview=call(J,f'/LibraryReview/{iid}/Preview',{},token=token)
 assert sha(video)==original_hash and all(sha(movie_dir/n)==h for n,h in neighbors.items())
 checked('Preview does not change any file')
@@ -185,6 +194,7 @@ proxy.shutdown()
 preview=call(J,f'/LibraryReview/{iid}/Preview',{},token=token)
 result=call(J,f'/LibraryReview/{iid}/Replace',{'token':preview['token'],'confirmTitle':item['title']},token=token)
 assert not video.exists() and all(sha(movie_dir/n)==h for n,h in neighbors.items())
+assert sha(second)==original_hash
 assert not list(movie_dir.glob('*.quarantine'))
 checked('Confirmed action deletes only selected synthetic video; sidecars and other edition preserved')
 call(J,f'/LibraryReview/{iid}/Replace',{'token':preview['token'],'confirmTitle':item['title']},token=token,expect=409)
