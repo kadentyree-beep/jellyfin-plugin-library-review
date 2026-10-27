@@ -12,6 +12,16 @@ OUT = pathlib.Path('artifacts/integration'); OUT.mkdir(parents=True, exist_ok=Tr
 J = 'http://127.0.0.1:18096'; R = 'http://127.0.0.1:17878'
 PLUGIN = '9eba6ec4-c190-40c2-961c-71e92174680e'
 checks = []
+
+class ApiObject(dict):
+    # Jellyfin 12 uses camelCase; accept either casing without duplicate keys.
+    def key(self, name):
+        return next((k for k in self if k.casefold()==name.casefold()),name)
+    def __getitem__(self,name):return super().__getitem__(self.key(name))
+    def get(self,name,default=None):return super().get(self.key(name),default)
+    def __setitem__(self,name,value):super().__setitem__(self.key(name),value)
+    def update(self,*args,**kwargs):
+        for k,v in dict(*args,**kwargs).items():self[k]=v
 def checked(name):
     checks.append(name); print('PASS:', name, flush=True)
     (OUT/'results.json').write_text(json.dumps({'checks':checks},indent=2))
@@ -28,7 +38,7 @@ def call(base, path, body=None, token=None, method=None, expect=None):
         if expect==e.code:return None
         print('HTTP FAILURE', path, e.code, e.read().decode()[:1500], flush=True);raise
     if expect is not None: assert status==expect,(path,status,expect)
-    return json.loads(data) if data else None
+    return json.loads(data,object_pairs_hook=lambda pairs:ApiObject(pairs)) if data else None
 def wait_ready(base,path):
     for _ in range(90):
         try:return call(base,path)
@@ -143,6 +153,30 @@ checked('Preview does not change any file')
 call(J,f'/LibraryReview/{iid}/Replace',{'token':preview['token'],'confirmTitle':'WRONG'},token=token,expect=409)
 assert video.exists()
 checked('Incorrect typed confirmation cannot delete')
+# A test-only proxy forwards reads to real Radarr but rejects blocklisting.
+# This exercises restoration after the plugin has staged the exact video.
+import http.server, threading
+class FaultProxy(http.server.BaseHTTPRequestHandler):
+    def log_message(self, *args): pass
+    def do_GET(self):
+        request=urllib.request.Request(R+self.path,headers={'X-Api-Key':rad_key})
+        with urllib.request.urlopen(request,timeout=30) as response:
+            self.send_response(response.status);self.end_headers();self.wfile.write(response.read())
+    def do_POST(self):
+        self.send_response(503);self.end_headers()
+proxy=http.server.ThreadingHTTPServer(('0.0.0.0',17879),FaultProxy)
+threading.Thread(target=proxy.serve_forever,daemon=True).start()
+gateway=json.loads(cmd('docker','network','inspect','lr-test-net'))[0]['IPAM']['Config'][0]['Gateway']
+config['RadarrUrl']=f'http://{gateway}:17879'
+call(J,'/Plugins/'+PLUGIN+'/Configuration',config,token=token)
+preview=call(J,f'/LibraryReview/{iid}/Preview',{},token=token)
+call(J,f'/LibraryReview/{iid}/Replace',{'token':preview['token'],'confirmTitle':item['title']},token=token,expect=409)
+assert sha(video)==original_hash and all(sha(movie_dir/n)==h for n,h in neighbors.items())
+assert not list(movie_dir.glob('*.quarantine'))
+checked('Failed blocklist restores selected video and preserves all neighbors')
+config['RadarrUrl']='http://lr-test-radarr:7878'
+call(J,'/Plugins/'+PLUGIN+'/Configuration',config,token=token)
+proxy.shutdown()
 preview=call(J,f'/LibraryReview/{iid}/Preview',{},token=token)
 result=call(J,f'/LibraryReview/{iid}/Replace',{'token':preview['token'],'confirmTitle':item['title']},token=token)
 assert not video.exists() and all(sha(movie_dir/n)==h for n,h in neighbors.items())
