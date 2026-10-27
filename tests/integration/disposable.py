@@ -29,6 +29,7 @@ def cmd(*args):
     return subprocess.check_output(args, text=True).strip()
 def call(base, path, body=None, token=None, method=None, expect=None):
     headers = {'Content-Type':'application/json'}
+    if base==J: headers['X-Emby-Authorization']='MediaBrowser Client="DisposableIntegration", Device="CI", DeviceId="disposable-ci", Version="1"'
     if token: headers['X-Emby-Token' if base==J else 'X-Api-Key'] = token
     req=urllib.request.Request(base+path, headers=headers, data=None if body is None else json.dumps(body).encode(), method=method)
     try:
@@ -84,6 +85,7 @@ for _ in range(60):
     except Exception:time.sleep(2)
 print('VERSIONS',call(J,'/System/Info/Public')['Version'],rad['version'],flush=True)
 password=uuid.uuid4().hex
+wait_ready(J,'/Startup/Configuration')
 call(J,'/Startup/Configuration',{'UICulture':'en-US','MetadataCountryCode':'US','PreferredMetadataLanguage':'en'})
 call(J,'/Startup/User',{'Name':'fixture-admin','Password':password})
 call(J,'/Startup/RemoteAccess',{'EnableRemoteAccess':False,'EnableAutomaticPortMapping':False})
