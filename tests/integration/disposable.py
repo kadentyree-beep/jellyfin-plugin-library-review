@@ -77,11 +77,15 @@ cmd('docker','run','-d','--name','lr-test-radarr','--network','lr-test-net','-p'
 cmd('docker','run','-d','--name','lr-test-jellyfin','--network','lr-test-net','-p','127.0.0.1:18096:8096',
     '-v',f'{ROOT}/jellyfin:/config','-v',f'{ROOT}/media:/media/movies','jellyfin/jellyfin:12.2')
 wait_ready(J,'/System/Info/Public')
-for _ in range(60):
-    if (ROOT/'radarr/config.xml').exists():break
-    time.sleep(2)
 import xml.etree.ElementTree as ET
-rad_key=ET.parse(ROOT/'radarr/config.xml').findtext('ApiKey')
+rad_key=None
+for _ in range(60):
+    try:
+        rad_key=ET.parse(ROOT/'radarr/config.xml').findtext('ApiKey')
+        if rad_key:break
+    except (FileNotFoundError,ET.ParseError):pass
+    time.sleep(2)
+assert rad_key,'Disposable Radarr configuration not ready'
 for _ in range(60):
     try:rad=call(R,'/api/v3/system/status',token=rad_key);break
     except Exception:time.sleep(2)
