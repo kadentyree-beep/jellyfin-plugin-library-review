@@ -83,9 +83,9 @@ rad_key=ET.parse(ROOT/'radarr/config.xml').findtext('ApiKey')
 for _ in range(60):
     try:rad=call(R,'/api/v3/system/status',token=rad_key);break
     except Exception:time.sleep(2)
+wait_ready(J,'/Startup/Configuration')
 print('VERSIONS',call(J,'/System/Info/Public')['Version'],rad['version'],flush=True)
 password=uuid.uuid4().hex
-wait_ready(J,'/Startup/Configuration')
 call(J,'/Startup/Configuration',{'UICulture':'en-US','MetadataCountryCode':'US','PreferredMetadataLanguage':'en'})
 call(J,'/Startup/User')
 call(J,'/Startup/User',{'Name':'fixture-admin','Password':password})
