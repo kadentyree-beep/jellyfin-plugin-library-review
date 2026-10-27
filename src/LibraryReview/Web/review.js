@@ -5,6 +5,9 @@ define(['loading', 'toast'], function (loading, toast) {
         var state, preview, busy = false;
         function el(id) { return view.querySelector('#' + id); }
         function message(text) { el('lrMessage').textContent = text; }
+        function configKey(config, name) { return Object.keys(config).find(function (key) { return key.toLowerCase() === name.toLowerCase(); }) || name; }
+        function configGet(config, name) { return config[configKey(config, name)]; }
+        function configSet(config, name, value) { config[configKey(config, name)] = value; }
         function api(path, body) {
             return ApiClient.ajax({ type: body === undefined ? 'GET' : 'POST',
                 url: ApiClient.getUrl('LibraryReview' + path), dataType: 'json',
@@ -74,17 +77,17 @@ define(['loading', 'toast'], function (loading, toast) {
         el('lrConfig').addEventListener('submit', function (event) {
             event.preventDefault(); action(async function () {
                 var config = await ApiClient.getPluginConfiguration(pluginId);
-                config.DesiredLanguage = el('lrLanguage').value; config.RadarrUrl = el('lrUrl').value;
-                config.RadarrApiKey = el('lrKey').value; config.JellyfinMovieRoot = el('lrJRoot').value;
-                config.RadarrMovieRoot = el('lrRRoot').value; config.EnableReplacement = el('lrReplace').checked;
+                configSet(config, 'DesiredLanguage', el('lrLanguage').value); configSet(config, 'RadarrUrl', el('lrUrl').value);
+                configSet(config, 'RadarrApiKey', el('lrKey').value); configSet(config, 'JellyfinMovieRoot', el('lrJRoot').value);
+                configSet(config, 'RadarrMovieRoot', el('lrRRoot').value); configSet(config, 'EnableReplacement', el('lrReplace').checked);
                 await ApiClient.updatePluginConfiguration(pluginId, config); message('Settings saved. Replacement only runs after a separate explicit confirmation.');
             });
         });
         view.addEventListener('viewshow', function () { action(async function () {
             var c = await ApiClient.getPluginConfiguration(pluginId);
-            el('lrLanguage').value = c.DesiredLanguage || 'eng'; el('lrUrl').value = c.RadarrUrl || '';
-            el('lrKey').value = c.RadarrApiKey || ''; el('lrJRoot').value = c.JellyfinMovieRoot || '';
-            el('lrRRoot').value = c.RadarrMovieRoot || ''; el('lrReplace').checked = c.EnableReplacement || false;
+            el('lrLanguage').value = configGet(c, 'DesiredLanguage') || 'eng'; el('lrUrl').value = configGet(c, 'RadarrUrl') || '';
+            el('lrKey').value = configGet(c, 'RadarrApiKey') || ''; el('lrJRoot').value = configGet(c, 'JellyfinMovieRoot') || '';
+            el('lrRRoot').value = configGet(c, 'RadarrMovieRoot') || ''; el('lrReplace').checked = configGet(c, 'EnableReplacement') || false;
             await load();
         }); });
     };
