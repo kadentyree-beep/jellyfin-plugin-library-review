@@ -29,8 +29,10 @@ def cmd(*args):
     return subprocess.check_output(args, text=True).strip()
 def call(base, path, body=None, token=None, method=None, expect=None):
     headers = {'Content-Type':'application/json'}
-    if base==J: headers['X-Emby-Authorization']='MediaBrowser Client="DisposableIntegration", Device="CI", DeviceId="disposable-ci", Version="1"'
-    if token: headers['X-Emby-Token' if base==J else 'X-Api-Key'] = token
+    if base==J:
+        headers['Authorization']='MediaBrowser Client="DisposableIntegration", Device="CI", DeviceId="disposable-ci", Version="1"'
+        if token: headers['Authorization']+=', Token="'+token+'"'
+    elif token: headers['X-Api-Key'] = token
     req=urllib.request.Request(base+path, headers=headers, data=None if body is None else json.dumps(body).encode(), method=method)
     try:
         with urllib.request.urlopen(req, timeout=120) as response:

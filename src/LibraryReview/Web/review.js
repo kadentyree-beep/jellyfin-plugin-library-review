@@ -8,7 +8,7 @@ define(['loading', 'toast'], function (loading, toast) {
         function api(path, body) {
             return ApiClient.ajax({ type: body === undefined ? 'GET' : 'POST',
                 url: ApiClient.getUrl('LibraryReview' + path), dataType: 'json',
-                contentType: 'application/json', headers: { 'X-Emby-Token': ApiClient.accessToken() },
+                contentType: 'application/json', headers: { 'Authorization': 'MediaBrowser Token="' + encodeURIComponent(ApiClient.accessToken()) + '"' },
                 data: body === undefined ? undefined : JSON.stringify(body), timeout: 1800000 });
         }
         async function action(work) {
