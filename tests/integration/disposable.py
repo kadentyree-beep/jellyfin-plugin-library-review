@@ -87,6 +87,7 @@ print('VERSIONS',call(J,'/System/Info/Public')['Version'],rad['version'],flush=T
 password=uuid.uuid4().hex
 wait_ready(J,'/Startup/Configuration')
 call(J,'/Startup/Configuration',{'UICulture':'en-US','MetadataCountryCode':'US','PreferredMetadataLanguage':'en'})
+call(J,'/Startup/User')
 call(J,'/Startup/User',{'Name':'fixture-admin','Password':password})
 call(J,'/Startup/RemoteAccess',{'EnableRemoteAccess':False,'EnableAutomaticPortMapping':False})
 call(J,'/Startup/Complete',{})
