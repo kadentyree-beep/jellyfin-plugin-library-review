@@ -1,0 +1,27 @@
+name: Disposable Jellyfin Radarr integration
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet build src/LibraryReview -c Release
+      - name: Test only generated disposable media
+        run: python3 tests/integration/disposable.py
+      - name: Collect disposable service logs
+        if: always()
+        run: |
+          mkdir -p artifacts/integration
+          docker logs lr-test-jellyfin > artifacts/integration/jellyfin.log 2>&1 || true
+          docker logs lr-test-radarr > artifacts/integration/radarr.log 2>&1 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: disposable-integration-evidence
+          path: artifacts/integration
