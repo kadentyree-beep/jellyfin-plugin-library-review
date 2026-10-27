@@ -96,7 +96,7 @@ call(J,'/Startup/Complete',{})
 admin=call(J,'/Users/AuthenticateByName',{'Username':'fixture-admin','Pw':password})
 token=admin['AccessToken']
 plugins=call(J,'/Plugins',token=token)
-assert any(p['Id']==PLUGIN and p['Status']=='Active' for p in plugins),[(p['Name'],p['Status']) for p in plugins]
+assert any(uuid.UUID(p['Id'])==uuid.UUID(PLUGIN) and p['Status']=='Active' for p in plugins),[(p['Name'],p['Status']) for p in plugins]
 checked('Plugin loaded in real Jellyfin 12.2')
 call(J,'/LibraryReview',expect=401)
 guest=call(J,'/Users/New',{'Name':'fixture-viewer','Password':password},token=token)
