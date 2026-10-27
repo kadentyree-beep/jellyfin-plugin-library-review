@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html><head><title>Library Review</title></head><body>
+<div id="libraryReviewPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox" data-controller="__plugin/library-review.js">
+  <div data-role="content"><div class="content-primary" style="max-width:1100px;margin:auto">
+    <h1>Library Review</h1>
+    <p>Find files worth reviewing. Warnings are clues, not proof of incorrect content.</p>
+    <p id="lrSummary" role="status" aria-live="polite">Loading…</p>
+    <button is="emby-button" id="lrScan" class="raised button-submit">Check library now</button>
+    <label style="margin-left:1em"><input id="lrShowAll" type="checkbox"> Include clean and acknowledged files</label>
+    <p id="lrMessage" role="status" aria-live="polite"></p>
+    <section id="lrItems" aria-label="Library findings"></section>
+    <details style="margin:2em 0"><summary>Connection and safety settings</summary>
+      <p>Audio and filename checks work without Radarr. Independent runtime comparisons and replacement need Radarr. A server plugin does not add badges to every TV or mobile client.</p>
+      <form id="lrConfig">
+        <div class="inputContainer"><label class="inputLabel" for="lrLanguage">Preferred audio language (ISO code)</label><input is="emby-input" id="lrLanguage" value="eng" required pattern="[a-z]{2,3}"></div>
+        <div class="inputContainer"><label class="inputLabel" for="lrUrl">Radarr URL (optional)</label><input is="emby-input" id="lrUrl" placeholder="http://radarr:7878"></div>
+        <div class="inputContainer"><label class="inputLabel" for="lrKey">Radarr API key</label><input is="emby-input" id="lrKey" type="password" autocomplete="off"></div>
+        <p>API keys are stored in Jellyfin's plugin configuration. Protect your configuration backups. Use HTTPS when crossing an untrusted network.</p>
+        <div class="inputContainer"><label class="inputLabel" for="lrJRoot">Movie root as seen by Jellyfin</label><input is="emby-input" id="lrJRoot" placeholder="/media/movies"></div>
+        <div class="inputContainer"><label class="inputLabel" for="lrRRoot">Same movie root as seen by Radarr</label><input is="emby-input" id="lrRRoot" placeholder="/data/movies"></div>
+        <label><input type="checkbox" id="lrReplace"> Enable administrator-confirmed replacement</label>
+        <p>Off by default. Never runs from a scan. Requires a problem flag, exact path mapping, unique Radarr history, file verification, and a separate confirmation. Only the selected video file is removed; subtitles, artwork, other editions, and folders are left alone. File removal is permanent.</p>
+        <button is="emby-button" class="raised button-submit" type="submit">Save settings</button>
+      </form>
+    </details>
+    <details><summary>Replacement activity</summary><pre id="lrActivity" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre></details>
+    <dialog id="lrConfirm" style="max-width:700px;width:85%;background:#20252b;color:#fff;border:1px solid #78818d;border-radius:12px;padding:24px">
+      <h2>Block this release and find a replacement?</h2>
+      <p>This permanently removes ONE video file. It does not block the movie title. Radarr may start searching as soon as the release is blocked. A replacement is not guaranteed.</p>
+      <pre id="lrPreview" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre>
+      <label for="lrConfirmTitle">Type the movie title exactly to confirm</label>
+      <input is="emby-input" id="lrConfirmTitle" autocomplete="off">
+      <p>Full-file verification can take several minutes for large movies. Do not close the page during the action.</p>
+      <button is="emby-button" id="lrConfirmDelete" class="raised" disabled>Delete this file, block release, search</button>
+      <button is="emby-button" id="lrCancel" class="raised">Cancel</button>
+    </dialog>
+  </div></div>
+</div>
+</body></html>

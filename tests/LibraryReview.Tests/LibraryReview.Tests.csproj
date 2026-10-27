@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><IsPackable>false</IsPackable></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.1" />
+    <Compile Include="../../src/LibraryReview/Models.cs" Link="Models.cs" />
+    <Compile Include="../../src/LibraryReview/ExactFile.cs" Link="ExactFile.cs" />
+    <Compile Include="../../src/LibraryReview/RadarrClient.cs" Link="RadarrClient.cs" />
+    <Compile Include="../../src/LibraryReview/ConfirmationStore.cs" Link="ConfirmationStore.cs" />
+  </ItemGroup>
+</Project>
