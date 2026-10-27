@@ -4,7 +4,7 @@ Find movies worth reviewing—not a promise that every file is authentic.
 
 Library Review is an **administrator-only Jellyfin plugin** with a review page for possible runtime, edition, audio-language, and commentary mismatches. Scans never delete, replace, re-encode, or upload media.
 
-**Status: experimental alpha.** Built against Jellyfin **12.2.0 / .NET 10**. Older Jellyfin versions are not supported by this binary. Automated tests and browser fixtures are included; production Jellyfin installation and destructive replacement with a real Radarr instance still require a disposable-library integration test. Leave replacement disabled on a valuable library until you have tested your setup and backups.
+**Status: experimental alpha.** Built against Jellyfin **12.2.0 / .NET 10**. Older Jellyfin versions are not supported by this binary. Forty focused tests, a browser fixture, and a [real disposable Jellyfin/Radarr integration run](https://github.com/kadentyree-beep/jellyfin-plugin-library-review/actions/runs/40556044942) passed. The integration run used generated blue/silent video, no real media or download providers. Leave replacement disabled on a valuable library until you have tested your setup and backups.
 
 ## What it checks
 
@@ -46,8 +46,9 @@ The operation:
 
 - Matches the TMDB identity, exact mapped path, size, Radarr movie-file ID, import history, download ID, and original grab. Missing or ambiguous history disables the action.
 - Rejects symlinks/junctions, paths outside the configured root, unsupported file types, changed files, and active downloads for that movie.
+- Refuses replacement if multiple videos share the movie folder, protecting other editions from Radarr's subsequent import behavior.
 - Rechecks the full hash and moves **only that file** to a unique adjacent `.quarantine` name. It verifies the captured file before proceeding.
-- Marks that original Radarr grab failed to blocklist the **release**, not the movie title.
+- Marks that original Radarr grab failed to blocklist the **release**, not the movie title, and verifies that the blocklist entry actually exists before deleting.
 - Deletes only the captured video file, never its folder, subtitles, artwork, or other editions. It deliberately does not use Radarr's file/bulk-delete endpoints, which can handle companion files.
 - Requests a Radarr refresh and replacement search using the movie's existing quality profile. Radarr's failed-download handling can also start a search when blocklisting occurs.
 
@@ -57,7 +58,7 @@ Tokens are single-use and expire. Changing settings invalidates the preview. Do 
 
 ## Install / build
 
-Use the alpha release ZIP only with the stated Jellyfin version. Extract `Jellyfin.Plugin.LibraryReview.dll` into a dedicated `Library Review_0.1.0.0` folder inside your Jellyfin plugin directory, then restart Jellyfin at a convenient time. Keep the existing standalone audit if you have one until the plugin is verified. A repository catalogue manifest is supplied with releases.
+Use the alpha release ZIP only with the stated Jellyfin version. Extract `Jellyfin.Plugin.LibraryReview.dll` into a dedicated `Library Review_0.1.1.0` folder inside your Jellyfin plugin directory, then restart Jellyfin at a convenient time. Keep the existing standalone audit if you have one until the plugin is verified. A repository catalogue manifest is supplied with releases.
 
 Build from source with the .NET 10 SDK:
 

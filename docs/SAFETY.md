@@ -13,7 +13,7 @@ The scheduled task cannot invoke replacement. There is no bulk-delete API and no
 | Preview/identity/hash failure | Nothing changed; no blocklist operation |
 | File changed before staging | Action rejected |
 | Captured file fails verification | Restore original name if free; do not overwrite a new import |
-| Blocklist request fails or times out | Attempt restoration; blocklist may have succeeded remotely; inspect before retry |
+| Blocklist request fails, times out, or entry cannot be verified | Attempt restoration; blocklist may have succeeded remotely; inspect before retry |
 | Crash after staging | An adjacent `.library-review-<random>.quarantine` file may remain; do not delete it blindly |
 | Delete succeeds, refresh/search fails | File remains deleted; activity records deletion. Fix Radarr and search from Radarr; do not repeat deletion |
 | New file appears at original path after staging | Left untouched; only the uniquely staged original is eligible for removal |
@@ -31,7 +31,7 @@ Radarr's blocklist operation can trigger its own automatic failed-download searc
 1. Test plugin loading and admin/non-admin authorization on the exact Jellyfin version.
 2. Use a disposable Radarr movie with an imported fixture and traceable grab/import history.
 3. Verify preview is read-only; wrong confirmation, stale token and changed mapping are rejected.
-4. Put sidecars and a second video beside the fixture. Confirm only the selected file is removed.
+4. Put sidecars and a second video beside the fixture. Confirm replacement is refused with multiple videos. Then isolate the fixture into its own movie folder and confirm only that video is removed, leaving sidecars and sibling-folder videos intact.
 5. Interrupt Radarr availability before blocklisting and verify the captured file is restored.
 6. Verify Radarr sees the missing file and starts a new search; confirm the resulting replacement independently.
 7. Test playback-in-progress behavior for your OS. Windows may refuse to stage an open file; Linux may let ongoing playback finish from the open file handle.

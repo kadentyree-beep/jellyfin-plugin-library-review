@@ -1,20 +1,20 @@
 [
   {
-    "overview": "Experimental movie metadata review; no automatic deletion.",
-    "description": "Alpha for Jellyfin 12.2.0. Admin review page with optional explicitly confirmed exact-file replacement. Read the safety documentation before enabling replacement.",
-    "name": "Library Review",
-    "owner": "kadentyree-beep",
-    "category": "General",
     "guid": "9eba6ec4-c190-40c2-961c-71e92174680e",
+    "owner": "kadentyree-beep",
+    "name": "Library Review",
+    "description": "Alpha for Jellyfin 12.2.0. Admin review page with optional explicitly confirmed exact-file replacement. Read the safety documentation before enabling replacement.",
     "versions": [
       {
-        "sourceUrl": "https://github.com/kadentyree-beep/jellyfin-plugin-library-review/releases/download/v0.1.0-alpha.1/library-review-0.1.0-alpha.1.zip",
-        "timestamp": "2026-10-27T17:22:57.4032909Z",
+        "version": "0.1.1.0",
         "targetAbi": "12.2.0.0",
-        "version": "0.1.0.0",
-        "changelog": "Initial experimental alpha. Read-only scan by default. Manual disposable-library integration testing required before enabling replacement.",
-        "checksum": "a13dfad2049ed9c31cac8c1d87bb5284"
+        "sourceUrl": "https://github.com/kadentyree-beep/jellyfin-plugin-library-review/releases/download/v0.1.1-alpha.2/library-review-0.1.1-alpha.2.zip",
+        "checksum": "baaf3b1fc655acce1cc4511b9ef67833",
+        "timestamp": "2026-10-27T18:03:31.0551167Z",
+        "changelog": "Disposable Jellyfin/Radarr integration verified. Supported authentication, blocklist verification and multi-edition safeguards. Replacement remains disabled by default."
       }
-    ]
+    ],
+    "overview": "Experimental movie metadata review; no automatic deletion.",
+    "category": "General"
   }
 ]
