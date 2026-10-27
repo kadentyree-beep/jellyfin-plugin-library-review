@@ -141,7 +141,7 @@ for _ in range(60):
     call(J,'/LibraryReview/Scan',{},token=token)
     report=call(J,'/LibraryReview',token=token)
     selected=[i for i in report['items'] if i['file']['path'].endswith(video.name)]
-    if selected:break
+    if selected and selected[0]['actualMinutes']>0 and selected[0]['tmdbId']:break
     time.sleep(2)
 assert len(selected)==1,report
 item=selected[0];iid=item['id']
