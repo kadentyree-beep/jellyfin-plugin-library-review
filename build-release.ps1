@@ -1,10 +1,13 @@
-param([string]$Dotnet = 'dotnet')
+param([string]$Dotnet = 'dotnet', [string]$TestedDll)
 $ErrorActionPreference = 'Stop'
+if (-not $TestedDll) {
 & $Dotnet build "$PSScriptRoot/src/LibraryReview" -c Release
 if ($LASTEXITCODE -ne 0) { throw 'Build failed' }
+}
 $out = Join-Path $PSScriptRoot 'artifacts'
 New-Item -ItemType Directory -Force -Path $out | Out-Null
 $dll = Join-Path $PSScriptRoot 'src/LibraryReview/bin/Release/net10.0/Jellyfin.Plugin.LibraryReview.dll'
+if ($TestedDll) { $dll = (Resolve-Path -LiteralPath $TestedDll).Path }
 $zip = Join-Path $out 'library-review-0.1.1-alpha.2.zip'
 Compress-Archive -LiteralPath $dll -DestinationPath $zip -Force
 $hash = (Get-FileHash -LiteralPath $zip -Algorithm MD5).Hash.ToLowerInvariant()

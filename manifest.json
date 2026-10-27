@@ -1,20 +1,20 @@
 [
   {
-    "guid": "9eba6ec4-c190-40c2-961c-71e92174680e",
     "owner": "kadentyree-beep",
-    "name": "Library Review",
-    "description": "Alpha for Jellyfin 12.2.0. Admin review page with optional explicitly confirmed exact-file replacement. Read the safety documentation before enabling replacement.",
+    "overview": "Experimental movie metadata review; no automatic deletion.",
     "versions": [
       {
         "version": "0.1.1.0",
+        "changelog": "Disposable Jellyfin/Radarr integration verified. Supported authentication, blocklist verification and multi-edition safeguards. Replacement remains disabled by default.",
+        "checksum": "13065fe9acb9d1bdf8ceee4dd34b7b1b",
+        "timestamp": "2026-10-27T18:12:02.1966973Z",
         "targetAbi": "12.2.0.0",
-        "sourceUrl": "https://github.com/kadentyree-beep/jellyfin-plugin-library-review/releases/download/v0.1.1-alpha.2/library-review-0.1.1-alpha.2.zip",
-        "checksum": "baaf3b1fc655acce1cc4511b9ef67833",
-        "timestamp": "2026-10-27T18:03:31.0551167Z",
-        "changelog": "Disposable Jellyfin/Radarr integration verified. Supported authentication, blocklist verification and multi-edition safeguards. Replacement remains disabled by default."
+        "sourceUrl": "https://github.com/kadentyree-beep/jellyfin-plugin-library-review/releases/download/v0.1.1-alpha.2/library-review-0.1.1-alpha.2.zip"
       }
     ],
-    "overview": "Experimental movie metadata review; no automatic deletion.",
-    "category": "General"
+    "name": "Library Review",
+    "guid": "9eba6ec4-c190-40c2-961c-71e92174680e",
+    "category": "General",
+    "description": "Alpha for Jellyfin 12.2.0. Admin review page with optional explicitly confirmed exact-file replacement. Read the safety documentation before enabling replacement."
   }
 ]
