@@ -47,7 +47,7 @@ for image in ['jellyfin/jellyfin:12.2','lscr.io/linuxserver/radarr:latest']:
     print('IMAGE',cmd('docker','image','inspect',image,'--format','{{json .RepoDigests}}'),flush=True)
 movie_dir=ROOT/'media/Inception (2010)';movie_dir.mkdir();movie_dir.chmod(0o777)
 video=movie_dir/'Inception (2010) Bluray-1080p.mkv'
-cmd('docker','run','--rm','--network','none','-v',f'{ROOT}/media:/fixtures',
+cmd('docker','run','--rm','--network','none','--user',f'{os.getuid()}:{os.getgid()}','-v',f'{ROOT}/media:/fixtures',
     '--entrypoint','/usr/lib/jellyfin-ffmpeg/ffmpeg','jellyfin/jellyfin:12.2',
     '-v','error','-f','lavfi','-i','color=c=blue:s=64x64:r=1','-f','lavfi','-i','anullsrc=r=8000:cl=mono',
     '-t','600','-c:v','libx264','-preset','ultrafast','-c:a','aac','-b:a','8k','-metadata:s:a:0','language=eng',
@@ -59,7 +59,7 @@ video.chmod(0o666)
 # The second edition is added after Radarr indexes the first, to avoid selection ambiguity.
 original_hash=sha(video)
 cmd('docker','run','-d','--name','lr-test-radarr','--network','lr-test-net','-p','127.0.0.1:17878:7878',
-    '-e','PUID=0','-e','PGID=0','-e','TZ=UTC','-v',f'{ROOT}/radarr:/config','-v',f'{ROOT}/media:/movies',
+    '-e',f'PUID={os.getuid()}','-e',f'PGID={os.getgid()}','-e','TZ=UTC','-v',f'{ROOT}/radarr:/config','-v',f'{ROOT}/media:/movies',
     'lscr.io/linuxserver/radarr:latest')
 cmd('docker','run','-d','--name','lr-test-jellyfin','--network','lr-test-net','-p','127.0.0.1:18096:8096',
     '-v',f'{ROOT}/jellyfin:/config','-v',f'{ROOT}/media:/media/movies','jellyfin/jellyfin:12.2')
