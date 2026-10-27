@@ -14,6 +14,10 @@ jobs:
       - run: dotnet build src/LibraryReview -c Release
       - name: Test only generated disposable media
         run: python3 tests/integration/disposable.py
+      - name: Preserve the exact tested binary
+        run: |
+          cp src/LibraryReview/bin/Release/net10.0/Jellyfin.Plugin.LibraryReview.dll artifacts/integration/
+          sha256sum artifacts/integration/Jellyfin.Plugin.LibraryReview.dll > artifacts/integration/tested-binary.sha256
       - name: Collect disposable service logs
         if: always()
         run: |
