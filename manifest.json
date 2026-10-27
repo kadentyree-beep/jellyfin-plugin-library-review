@@ -1,0 +1,20 @@
+[
+  {
+    "overview": "Experimental movie metadata review; no automatic deletion.",
+    "description": "Alpha for Jellyfin 12.2.0. Admin review page with optional explicitly confirmed exact-file replacement. Read the safety documentation before enabling replacement.",
+    "name": "Library Review",
+    "owner": "kadentyree-beep",
+    "category": "General",
+    "guid": "9eba6ec4-c190-40c2-961c-71e92174680e",
+    "versions": [
+      {
+        "sourceUrl": "https://github.com/kadentyree-beep/jellyfin-plugin-library-review/releases/download/v0.1.0-alpha.1/library-review-0.1.0-alpha.1.zip",
+        "timestamp": "2026-10-27T17:22:57.4032909Z",
+        "targetAbi": "12.2.0.0",
+        "version": "0.1.0.0",
+        "changelog": "Initial experimental alpha. Read-only scan by default. Manual disposable-library integration testing required before enabling replacement.",
+        "checksum": "a13dfad2049ed9c31cac8c1d87bb5284"
+      }
+    ]
+  }
+]

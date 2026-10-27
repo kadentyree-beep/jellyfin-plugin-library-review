@@ -1,0 +1,6 @@
+* text=auto
+*.cs text eol=lf
+*.js text eol=lf
+*.cjs text eol=lf
+*.html text eol=lf
+*.yml text eol=lf
